@@ -18,6 +18,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 import javax.imageio.ImageIO;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
@@ -176,6 +178,8 @@ public class MainForm extends JFrame {
       say(s);
    }
 
+   private static final ReentrantLock lock = new ReentrantLock();
+
    public static void say(final String s) {
       if (s.trim().isEmpty())
          return;
@@ -183,15 +187,21 @@ public class MainForm extends JFrame {
 
          @Override
          public void run() {
-
             try {
-               Thread.sleep(200);
-               ase.eval("say \"" + s + "\"");
+               if (!lock.tryLock(1, TimeUnit.SECONDS))
+                  return;
+               try {
+                  Thread.sleep(200);
+                  ase.eval("say \"" + s + "\"");
+               } finally {
+                  lock.unlock();
+               }
             } catch (InterruptedException | ScriptException ex) {
                throw new RuntimeException(ex);
             }
          }
-      });
+      }
+      );
       th.start();
    }
 }

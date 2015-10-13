@@ -176,7 +176,9 @@ public class MainForm extends JFrame {
    public static void sayCH(char c) {
       if (c != 10 && c != 20 && c != 30 && !isC(c))
          return;
-      String s = c == 10 ? "10" : c == 20 ? "20" : c == 30 ? "30" : String.valueOf(c).toLowerCase();
+      String s = c == 10 ? "10" : c == 20 ? "20" : c == 30 ? "30" :
+              "W".equalsIgnoreCase(String.valueOf(c)) ? "double" :
+                      String.valueOf(c).toLowerCase();
       say(s);
    }
 

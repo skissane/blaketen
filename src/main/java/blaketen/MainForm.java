@@ -43,7 +43,8 @@ public class MainForm extends JFrame {
       if (!isC(c))
          return;
       scr.c = scr.c == '1' && c == '0' ? 10 :
-              scr.c == '2' && c == '0' ? 20 : c;
+              scr.c == '2' && c == '0' ? 20 :
+                      scr.c == '3' && c == '0' ? 30 : c;
       EventQueue.invokeLater(new Runnable() {
 
          @Override
@@ -137,7 +138,7 @@ public class MainForm extends JFrame {
             g.setColor(Color.GREEN);
             g.drawString("10", (int) (imgX + b.getWidth() - 40), imgY - 20);
          } else {
-            String s = c == 10 ? "10" : c == 20 ? "20" : String.valueOf(c).toUpperCase();
+            String s = c == 10 ? "10" : c == 20 ? "20" : c == 30 ? "30" : String.valueOf(c).toUpperCase();
             double fontSize = 0.80 * img.getHeight() * Toolkit.getDefaultToolkit().getScreenResolution() / 72.0;
             Font f = new Font("Arial", Font.BOLD, (int) fontSize);
             g.setFont(f);
@@ -173,9 +174,9 @@ public class MainForm extends JFrame {
    }
 
    public static void sayCH(char c) {
-      if (c != 10 && c != 20 && !isC(c))
+      if (c != 10 && c != 20 && c != 30 && !isC(c))
          return;
-      String s = c == 10 ? "10" : c == 20 ? "20" : String.valueOf(c).toLowerCase();
+      String s = c == 10 ? "10" : c == 20 ? "20" : c == 30 ? "30" : String.valueOf(c).toLowerCase();
       say(s);
    }
 

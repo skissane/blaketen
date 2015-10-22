@@ -30,7 +30,6 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 public class MainForm extends JFrame {
 
-   private final boolean lc;
    private final MainScreen scr;
 
    public static boolean isC(char c) {
@@ -67,8 +66,7 @@ public class MainForm extends JFrame {
       }
    }
 
-   public MainForm(boolean lc) {
-      this.lc = lc;
+   public MainForm() {
       setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
       scr = new MainScreen();
       add(scr);
@@ -80,7 +78,6 @@ public class MainForm extends JFrame {
    }
 
    public static void main(String args[]) {
-      final boolean lc = args.length > 0 && "l".equalsIgnoreCase(args[0]);
       try {
          for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels())
             if ("Nimbus".equals(info.getName())) {
@@ -95,7 +92,7 @@ public class MainForm extends JFrame {
       EventQueue.invokeLater(new Runnable() {
          @Override
          public void run() {
-            MainForm mf = new MainForm(lc);
+            MainForm mf = new MainForm();
             mf.setVisible(true);
             mf.setExtendedState(mf.getExtendedState() | JFrame.MAXIMIZED_BOTH);
          }
@@ -141,9 +138,9 @@ public class MainForm extends JFrame {
             g.setColor(Color.GREEN);
             g.drawString("10", (int) (imgX + b.getWidth() - 40), imgY - 20);
          } else {
-            String s = c >= 0xE001 && c <= 0xE009 ? (c - 0xE000) + "0" : String.valueOf(c).toUpperCase();
-            if (lc)
-               s = s.toLowerCase();
+            String s = c >= 0xE001 && c <= 0xE009 ? (c - 0xE000) + "0" :
+                    Character.isLetter(c) ? String.valueOf(c).toUpperCase() + String.valueOf(c).toLowerCase() :
+                            String.valueOf(c);
             double fontSize = 0.80 * img.getHeight() * Toolkit.getDefaultToolkit().getScreenResolution() / 72.0;
             Font f = new Font("Arial", Font.BOLD, (int) fontSize);
             g.setFont(f);

@@ -30,9 +30,12 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 public class MainForm extends JFrame {
 
+   private final boolean lc;
    private final MainScreen scr;
 
    public static boolean isC(char c) {
+      if (c >= 0xE001 && c <= 0xE009)
+         return true;
       if (c >= 128)
          return false;
       return Character.isLetterOrDigit(c) || c == ' ';
@@ -42,9 +45,7 @@ public class MainForm extends JFrame {
       char c = e.getKeyChar();
       if (!isC(c))
          return;
-      scr.c = scr.c == '1' && c == '0' ? 10 :
-              scr.c == '2' && c == '0' ? 20 :
-                      scr.c == '3' && c == '0' ? 30 : c;
+      scr.c = scr.c >= '1' && scr.c <= '9' && c == '0' ? ((char) (0xE000 + scr.c - '0')) : c;
       EventQueue.invokeLater(new Runnable() {
 
          @Override
@@ -66,7 +67,8 @@ public class MainForm extends JFrame {
       }
    }
 
-   public MainForm() {
+   public MainForm(boolean lc) {
+      this.lc = lc;
       setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
       scr = new MainScreen();
       add(scr);
@@ -78,6 +80,7 @@ public class MainForm extends JFrame {
    }
 
    public static void main(String args[]) {
+      final boolean lc = args.length > 0 && "l".equalsIgnoreCase(args[0]);
       try {
          for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels())
             if ("Nimbus".equals(info.getName())) {
@@ -92,19 +95,19 @@ public class MainForm extends JFrame {
       EventQueue.invokeLater(new Runnable() {
          @Override
          public void run() {
-            MainForm mf = new MainForm();
+            MainForm mf = new MainForm(lc);
             mf.setVisible(true);
             mf.setExtendedState(mf.getExtendedState() | JFrame.MAXIMIZED_BOTH);
          }
       });
    }
 
-   public static class MainScreen extends JComponent {
+   private class MainScreen extends JComponent {
 
       private BufferedImage img;
       private char c = ' ';
 
-      public MainScreen() {
+      private MainScreen() {
          try (InputStream in = getClass().getClassLoader().getResourceAsStream("blaketen/logo.jpg")) {
             this.img = ImageIO.read(in);
          } catch (IOException ex) {
@@ -138,7 +141,9 @@ public class MainForm extends JFrame {
             g.setColor(Color.GREEN);
             g.drawString("10", (int) (imgX + b.getWidth() - 40), imgY - 20);
          } else {
-            String s = c == 10 ? "10" : c == 20 ? "20" : c == 30 ? "30" : String.valueOf(c).toUpperCase();
+            String s = c >= 0xE001 && c <= 0xE009 ? (c - 0xE000) + "0" : String.valueOf(c).toUpperCase();
+            if (lc)
+               s = s.toLowerCase();
             double fontSize = 0.80 * img.getHeight() * Toolkit.getDefaultToolkit().getScreenResolution() / 72.0;
             Font f = new Font("Arial", Font.BOLD, (int) fontSize);
             g.setFont(f);
@@ -174,11 +179,12 @@ public class MainForm extends JFrame {
    }
 
    public static void sayCH(char c) {
-      if (c != 10 && c != 20 && c != 30 && !isC(c))
+      if (!isC(c))
          return;
-      String s = c == 10 ? "10" : c == 20 ? "20" : c == 30 ? "30" :
-              "W".equalsIgnoreCase(String.valueOf(c)) ? "double" :
-                      String.valueOf(c).toLowerCase();
+      String s =
+              c >= 0xE001 && c <= 0xE009 ? (c - 0xE000) + "0" :
+                      "W".equalsIgnoreCase(String.valueOf(c)) ? "double" :
+                              String.valueOf(c).toLowerCase();
       say(s);
    }
 

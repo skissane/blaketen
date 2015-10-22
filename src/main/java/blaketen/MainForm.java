@@ -183,8 +183,7 @@ public class MainForm extends JFrame {
          return;
       String s =
               c >= 0xE001 && c <= 0xE009 ? (c - 0xE000) + "0" :
-                      "W".equalsIgnoreCase(String.valueOf(c)) ? "double" :
-                              String.valueOf(c).toLowerCase();
+                      String.valueOf(c).toLowerCase();
       say(s);
    }
 

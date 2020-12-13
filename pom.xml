@@ -28,4 +28,11 @@
          </plugin>
       </plugins>
    </build>
+   <dependencies>
+      <dependency>
+         <groupId>com.tagtraum</groupId>
+         <artifactId>japlscript-java</artifactId>
+         <version>3.1.7</version>
+      </dependency>
+   </dependencies>
 </project>

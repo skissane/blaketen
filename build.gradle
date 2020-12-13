@@ -1,0 +1,27 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'application'
+
+mainClassName = 'blaketen.MainForm'
+
+group = 'BlakeTen'
+version = '1.0-SNAPSHOT'
+
+description = """"""
+
+sourceCompatibility = 1.10
+targetCompatibility = 1.10
+tasks.withType(JavaCompile) {
+	options.encoding = 'UTF-8'
+}
+
+
+
+repositories {
+        
+     maven { url "https://repo.maven.apache.org/maven2" }
+     maven { url "https://www.beatunes.com/repo/maven2" }
+}
+dependencies {
+    compile group: 'com.tagtraum', name: 'japlscript-java', version:'3.1.7'
+}

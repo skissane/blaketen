@@ -16,13 +16,9 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import javax.imageio.ImageIO;
-import javax.script.ScriptEngine;
-import javax.script.ScriptException;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.UIManager;
@@ -173,25 +169,6 @@ public class MainForm extends JFrame {
         }
     }
 
-    private static final ScriptEngine ase = getAppleScriptEngine();
-
-    public static ScriptEngine getAppleScriptEngine() {
-        try {
-            Class<?> c = Class.forName("apple.applescript.AppleScriptEngineFactory");
-            Object f = c.newInstance();
-            Method m = c.getMethod("getScriptEngine", new Class[0]);
-            return (ScriptEngine) m.invoke(f, new Object[0]);
-        } catch (ClassNotFoundException
-                | InstantiationException
-                | IllegalAccessException
-                | NoSuchMethodException
-                | SecurityException
-                | IllegalArgumentException
-                | InvocationTargetException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
     public static void sayCH(char c) {
         if (!isC(c)) return;
         String s =
@@ -205,21 +182,17 @@ public class MainForm extends JFrame {
         if (s.trim().isEmpty()) return;
         Thread th =
                 new Thread(
-                        new Runnable() {
-
-                            @Override
-                            public void run() {
+                        () -> {
+                            try {
+                                if (!lock.tryLock(1, TimeUnit.SECONDS)) return;
                                 try {
-                                    if (!lock.tryLock(1, TimeUnit.SECONDS)) return;
-                                    try {
-                                        Thread.sleep(200);
-                                        ase.eval("say \"" + s + "\"");
-                                    } finally {
-                                        lock.unlock();
-                                    }
-                                } catch (InterruptedException | ScriptException ex) {
-                                    throw new RuntimeException(ex);
+                                    Thread.sleep(200);
+                                    AppleScriptUtils.eval("say \"" + s + "\"");
+                                } finally {
+                                    lock.unlock();
                                 }
+                            } catch (InterruptedException ex) {
+                                throw new RuntimeException(ex);
                             }
                         });
         th.start();

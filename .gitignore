@@ -1,5 +1,6 @@
 *.swp
 /.gradle
+/.idea
 /.mvn
 /build
 /target

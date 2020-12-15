@@ -1,3 +1,7 @@
+plugins {
+    id "com.diffplug.gradle.spotless" version "3.26.1"
+}
+
 apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'application'
@@ -15,13 +19,21 @@ tasks.withType(JavaCompile) {
 	options.encoding = 'UTF-8'
 }
 
-
+spotless {
+    java {
+        importOrder()
+        googleJavaFormat().aosp()
+        removeUnusedImports()
+    }
+    groovyGradle {
+        greclipse()
+    }
+}
 
 repositories {
-        
      maven { url "https://repo.maven.apache.org/maven2" }
-     maven { url "https://www.beatunes.com/repo/maven2" }
 }
 dependencies {
-    compile group: 'com.tagtraum', name: 'japlscript-java', version:'3.1.7'
+    compile group: 'net.java.dev.jna', name: 'jna', version: '5.6.0'
+    compile group: 'net.java.dev.jna', name: 'jna-platform', version: '5.6.0'
 }

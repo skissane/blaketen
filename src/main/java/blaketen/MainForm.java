@@ -1,5 +1,6 @@
 package blaketen;
 
+import com.sun.jna.Platform;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
@@ -183,17 +184,19 @@ public class MainForm extends JFrame {
         Thread th =
                 new Thread(
                         () -> {
-                            try {
-                                if (!lock.tryLock(1, TimeUnit.SECONDS)) return;
+                            if (Platform.isWindows()) SayUtils.doSay(s);
+                            else
                                 try {
-                                    Thread.sleep(200);
-                                    AppleScriptUtils.eval("say \"" + s + "\"");
-                                } finally {
-                                    lock.unlock();
+                                    if (!lock.tryLock(1, TimeUnit.SECONDS)) return;
+                                    try {
+                                        Thread.sleep(Platform.isMac() ? 200 : 0);
+                                        SayUtils.doSay(s);
+                                    } finally {
+                                        lock.unlock();
+                                    }
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
                                 }
-                            } catch (InterruptedException ex) {
-                                throw new RuntimeException(ex);
-                            }
                         });
         th.start();
     }

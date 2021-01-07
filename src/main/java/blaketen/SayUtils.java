@@ -4,6 +4,10 @@ import com.sun.jna.Platform;
 
 public class SayUtils {
     public static void doSay(String s) {
+        if (RecordedSpeech.canSay(s)) {
+            RecordedSpeech.say(s);
+            return;
+        }
         if (Platform.isMac()) doSayMacos(s);
         else if (Platform.isWindows()) doSayWindows(s);
         else throw new IllegalStateException("Unsupported platform");

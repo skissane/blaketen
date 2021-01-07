@@ -2,3 +2,5 @@
 (for i in $(seq 1 26); do letter=$(printf \\x$(printf %x $(( $(printf %d "'a'") + $i - 1)))); echo say -o letter_$(echo $letter | tr a-z A-Z).aiff $letter; done) | sh -x
 (for i in $(seq 0 9); do echo say -o number_$i.aiff $i; done) | sh -x
 (for i in $(seq 1 10); do echo say -o number_$((10*$i)).aiff $((10*$i)); done) | sh -x
+for f in *.aiff; do ffmpeg -y -i "$f" "${f%.aiff}.wav"; done
+rm *.aiff

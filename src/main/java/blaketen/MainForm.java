@@ -40,13 +40,9 @@ public class MainForm extends JFrame {
         if (!isC(c)) return;
         scr.c = scr.c >= '1' && scr.c <= '9' && c == '0' ? ((char) (0xE000 + scr.c - '0')) : c;
         EventQueue.invokeLater(
-                new Runnable() {
-
-                    @Override
-                    public void run() {
-                        MainForm.this.repaint();
-                        sayCH(scr.c);
-                    }
+                () -> {
+                    MainForm.this.repaint();
+                    sayCH(scr.c);
                 });
     }
 

@@ -9,8 +9,10 @@ It was so-called because 10 was his favourite number.
 It helped him learn numbers and letters, and also how to use the computer
 keyboard.
 
-As written, it will only work on Mac OS X, since it is using AppleScript for
+As originally written, it only worked on Mac OS X, since it was using AppleScript for
 quick and dirty text-to-speech.
 
-It should work on other operating systems if the text-to-speech code is removed
-(or replaced with a cross-platform text-to-speech library, such as FreeTTS).
+Since then, I've added Windows SAPI integration, so it worked on Windows.
+
+And even more recently, I replaced the TTS with sound files I generated using TTS.
+So now it doesn't depend on having TTS available at all.

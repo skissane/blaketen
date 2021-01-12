@@ -1,5 +1,7 @@
 plugins {
 	id "com.diffplug.gradle.spotless" version "3.26.1"
+	id 'edu.sc.seis.launch4j' version '2.4.9'
+	id "com.github.johnrengelman.shadow" version "6.1.0"
 }
 
 apply plugin: 'java'
@@ -42,4 +44,11 @@ dependencies {
 
 test {
 	useJUnitPlatform()
+}
+
+launch4j {
+	mainClassName = 'blaketen.MainForm'
+	icon = "${projectDir}/src/main/resources/blaketen/icon.ico"
+	copyConfigurable = []
+	jar = "${buildDir}/libs/${project.tasks.shadowJar.archiveName}"
 }

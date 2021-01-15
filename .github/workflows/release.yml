@@ -32,7 +32,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: build/distributions/BlakeTen.zip
+          asset_path: build/distributions/BlakeTen-1.0-SNAPSHOT.zip
           asset_name: BlakeTen.zip
           asset_content_type: application/zip
       - name: Upload BlakeTen.exe

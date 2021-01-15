@@ -9,6 +9,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Setup JDK
+        uses: joschi/setup-jdk@v2
+        with:
+          java-version: '11'
+          architecture: 'x64'
       - name: Build project
         run: |
           ./gradlew clean spotlessCheck build shadowJar distZip

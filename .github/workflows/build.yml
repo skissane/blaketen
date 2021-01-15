@@ -1,0 +1,14 @@
+on: push
+
+name: Generic Build
+
+jobs:
+  build:
+    name: Generic Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Build project
+        run: |
+          ./gradlew clean spotlessCheck build shadowJar distZip

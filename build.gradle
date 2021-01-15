@@ -1,4 +1,5 @@
 plugins {
+	id "de.undercouch.download" version "4.0.2"
 	id "com.diffplug.gradle.spotless" version "3.26.1"
 	id 'edu.sc.seis.launch4j' version '2.4.9'
 	id "com.github.johnrengelman.shadow" version "6.1.0"
@@ -8,7 +9,43 @@ apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'application'
 
+task downloadJdk(type: Download) {
+	src 'https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.5%2B10/OpenJDK11U-jdk_x86-32_windows_hotspot_11.0.5_10.zip'
+	dest buildDir
+	overwrite false
+	onlyIfModified true
+}
+
+def dropPath(rpath,amount) {
+	return new RelativePath(true, (String[])rpath.segments.drop(amount))
+}
+
+task unzipJdk(type: Copy) {
+	from(zipTree("${buildDir}/OpenJDK11U-jdk_x86-32_windows_hotspot_11.0.5_10.zip"))
+	into "${buildDir}/jdk-11.0.5+10"
+	dependsOn downloadJdk
+	includeEmptyDirs = false
+	eachFile {
+		it.relativePath = dropPath(it.relativePath,1)
+	}
+}
+
 mainClassName = 'blaketen.MainForm'
+
+ext.currentVersionService = 'https://services.gradle.org/versions/current'
+
+task configureLatestWrapper {
+	doLast {
+		configure(tasks.'latestWrapper') {
+			distributionUrl new groovy.json.JsonSlurper().parseText(new URL(currentVersionService).text).downloadUrl
+		}
+	}
+}
+
+task latestWrapper(type: Wrapper) {
+	dependsOn configureLatestWrapper
+	group = 'wrapper'
+}
 
 group = 'BlakeTen'
 version = '1.0-SNAPSHOT'
@@ -51,4 +88,73 @@ launch4j {
 	icon = "${projectDir}/src/main/resources/blaketen/icon.ico"
 	copyConfigurable = []
 	jar = "${buildDir}/libs/${project.tasks.shadowJar.archiveName}"
+	bundledJrePath = "./jdk-11.0.5+10"
+}
+
+def prefixPath(pfx,rpath) {
+	def l = pfx
+	l.addAll(rpath.segments)
+	return new RelativePath(true,(String[])l)
+}
+
+createExe.dependsOn unzipJdk
+
+task setupExePrepare(dependsOn: [shadowJar, unzipJdk]) {
+	doLast {
+		def innoSetupDir = new File("${buildDir}/innosetup")
+
+		delete innoSetupDir
+		innoSetupDir.mkdir();
+
+		def innoSetupBlakeTenDir = new File("${buildDir}/innosetup/BlakeTen")
+		innoSetupBlakeTenDir.mkdir();
+
+		exec {
+			commandLine "convert", "${projectDir}/src/main/resources/blaketen/logo.jpg", "${buildDir}/innosetup/BlakeTen/logo.bmp"
+		}
+
+		copy {
+			from("${buildDir}/launch4j") {
+				include "BlakeTen.exe"
+				eachFile { fcd ->
+					fcd.relativePath = prefixPath(["BlakeTen"],fcd.relativePath)
+				}
+				includeEmptyDirs = false
+			}
+			from("${buildDir}") {
+				include "jdk-11.0.5+10/**"
+				exclude "jdk-11.0.5+10/demo/**"
+				exclude "jdk-11.0.5+10/legal/**"
+				exclude "jdk-11.0.5+10/include/**"
+				exclude "jdk-11.0.5+10/lib/src.zip"
+				includeEmptyDirs = false
+				eachFile { fcd ->
+					fcd.relativePath = prefixPath(["BlakeTen"],fcd.relativePath)
+				}
+			}
+			from("${projectDir}/src/main/resources/blaketen") {
+				include "icon.ico"
+				eachFile { fcd ->
+					fcd.relativePath = prefixPath(["BlakeTen"],fcd.relativePath)
+				}
+			}
+			into(innoSetupDir)
+		}
+
+		copy {
+			from("${rootProject.projectDir}/BlakeTen.iss")
+			into(innoSetupDir)
+		}
+	}
+	dependsOn createExe
+}
+
+task setupExe(dependsOn: [setupExePrepare]) {
+	doLast {
+		def innoSetupDir = new File("${buildDir}/innosetup")
+		exec {
+			workingDir rootProject.projectDir
+			commandLine "./iscc.sh ${innoSetupDir}/BlakeTen.iss".split()
+		}
+	}
 }

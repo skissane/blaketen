@@ -1,0 +1,47 @@
+on:
+  push:
+    tags:
+    - '[0-9]+.*'
+
+name: Upload Release Asset
+
+jobs:
+  build:
+    name: Upload Release Asset
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Build project # This would actually build your project, using zip for an example artifact
+        run: |
+          docker/run ./gradlew clean spotlessCheck build shadowJar distZip setupExe
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          draft: false
+          prerelease: false
+      - name: Upload BlakeTen.zip
+        id: upload-blaketen-zip
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: build/distributions/BlakeTen.zip
+          asset_name: BlakeTen.zip
+          asset_content_type: application/zip
+      - name: Upload BlakeTen.exe
+        id: upload-blaketen-exe
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: build/innosetup/BlakeTen.exe
+          asset_name: BlakeTen.exe
+          asset_content_type: application/vnd.microsoft.portable-executable

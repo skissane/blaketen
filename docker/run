@@ -1,0 +1,24 @@
+#!/bin/bash
+unset CDPATH
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do
+  DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null && pwd )"
+  SOURCE="$(readlink "$SOURCE")"
+  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null && pwd )"
+cd "$DIR"
+ARGS=( "$@" )
+
+_ttyOpt=""
+[ -t 0 ] && [ -t 1 ] && _ttyOpt="-it"
+
+docker build -t "blaketen" . &&
+        docker run \
+	-p 127.0.0.1:9980:8080/tcp \
+        -v $(pwd -P)/..:/blaketen \
+	-v $HOME/.gradle:/root/.gradle \
+        -w /blaketen \
+        ${_ttyOpt} \
+        "blaketen" \
+        "${ARGS[@]}"
